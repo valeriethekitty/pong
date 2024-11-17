@@ -62,8 +62,14 @@ function onWindowResize() {
 let key1 = null; // key for player 1
 let key2 = null; // key for player 2
 
-// init movement variable
+// init movement variables
 let moveAmount = 1;
+let moveAmount2 = 1;
+let maxSpeed = 5;
+
+// init acceleration variables
+let acceleration = null;
+let acceleration2 = null;
 
 // track when keys are pressed
 window.addEventListener("keydown", onKeyDown);
@@ -71,11 +77,23 @@ window.addEventListener("keydown", onKeyDown);
 function onKeyDown(event) {
     let keyCode = event.keyCode;
     switch(keyCode) {
+        case 37: // left arrow key
+            acceleration2 = false;
+            break;
         case 38: // up arrow key
             key2 = "UP";
             break;
+        case 39: // right arrow key
+            acceleration2 = true;
+            break;
         case 40: // down arrow key
             key2 = "DOWN";
+            break;
+        case 65: // A key
+            acceleration = false;
+            break;
+        case 68: // D key
+            acceleration = true;
             break;
         case 83: // S key
             key1 = "DOWN";
@@ -92,11 +110,23 @@ window.addEventListener("keyup", onKeyUp);
 function onKeyUp(event) {
     let keyCode = event.keyCode;
     switch(keyCode) {
+        case 37: // left arrow key
+            acceleration2 = null;
+            break;
         case 38: // up arrow key
             key2 = null;
             break;
+        case 39: // right arrow key
+            acceleration2 = null;
+            break;
         case 40: // down arrow key
             key2 = null;
+            break;
+        case 65: // A key
+            acceleration = null;
+            break;
+        case 68: // D key
+            acceleration = null;
             break;
         case 83: // S key
             key1 = null;
@@ -108,6 +138,29 @@ function onKeyUp(event) {
 }
 
 function animate() {
+    // change velocity
+    if (acceleration == false) {
+        if (moveAmount > 1) {
+            moveAmount -= 0.1; // decelerate
+        }
+    }
+    else if (acceleration == true) {
+        if (moveAmount < maxSpeed) {
+            moveAmount += 0.1; // accelerate
+        }
+    }
+    if (acceleration2 == false) {
+        if (moveAmount2 > 1) {
+            moveAmount2 -= 0.1; // decelerate
+        }
+    }
+    else if (acceleration2 == true) {
+        if (moveAmount2 < maxSpeed) {
+            moveAmount2 += 0.1; // accelerate
+        }
+    }
+
+    // change position
     if (key1 != null) {
         if (key1 == "UP") {
             if (paddle.position.y + paddle.geometry.parameters.height/2 + moveAmount <= window.innerHeight/2) { // check if out of bounds
@@ -123,12 +176,12 @@ function animate() {
     if (key2 != null) {
         if (key2 == "UP") {
             if (paddle2.position.y + paddle2.geometry.parameters.height/2 + moveAmount <= window.innerHeight/2) { // check if out of bounds
-                paddle2.position.y += moveAmount; // add moveAmount to Y value
+                paddle2.position.y += moveAmount2; // add moveAmount2 to Y value
             }
         }
         else if (key2 == "DOWN") {
             if (paddle2.position.y - paddle2.geometry.parameters.height/2 - moveAmount >= -window.innerHeight/2) { // check if out of bounds
-                paddle2.position.y -= moveAmount; // subtract moveAmount from Y value
+                paddle2.position.y -= moveAmount2; // subtract moveAmount2 from Y value
             }
         }
     }
