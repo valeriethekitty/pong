@@ -162,6 +162,18 @@ function resetBall() {
     ball.position.set(0, 0, 0);
 }
 
+// check collision
+
+function checkCollision( object, object2 ) {
+    object.updateMatrixWorld();
+    object2.updateMatrixWorld();
+
+    const box = new THREE.Box3().setFromObject(object);
+    const box2 = new THREE.Box3().setFromObject(object2);
+
+    return box.intersectsBox(box2);
+}
+
 function animate() {
     // change velocity
     if (acceleration == false) {
@@ -214,20 +226,28 @@ function animate() {
     // move ball
     if (!pause) { // if game not paused
         if (dir == LEFT) {
-            ball.position.x -= 1;
+            ball.position.x -= 10;
         }
         else if (dir == RIGHT) {
-            ball.position.x += 1;
+            ball.position.x += 10;
         }
     }
 
-    if (ball.position.x >= window.innerWidth/2 + ball.geometry.parameters.radius) {
+    // check for goal scoring 
+    if (ball.position.x >= window.innerWidth/2 + ball.geometry.parameters.radius || ball.position.x <= -window.innerWidth/2 - ball.geometry.parameters.radius) {
         resetBall();
-        dir = RIGHT;
     }
-    if (ball.position.x <= -window.innerWidth/2 - ball.geometry.parameters.radius) {
-        resetBall();
-        dir = LEFT;
+
+    // check for ball collision with paddle
+    if (dir == LEFT) {
+        if (checkCollision(ball, paddle)) { // if collide, change dir
+            dir = RIGHT;
+        }
+    }
+    else if (dir == RIGHT) {
+        if (checkCollision(ball, paddle2)) { // if collide, change dir
+            dir = LEFT;
+        }
     }
 
     renderer.render( scene, camera );
