@@ -32,6 +32,14 @@ paddle2.position.set(window.innerWidth/2 - window.innerWidth/10, 0, 0);
 scene.add(paddle);
 scene.add(paddle2);
 
+// create ball
+const ball_geometry = new THREE.CircleGeometry( 10 );
+const ball_material = new THREE.MeshBasicMaterial( { color: 0xFFFFFF, side: THREE.DoubleSide });
+const ball = new THREE.Mesh (ball_geometry, ball_material);
+
+// add ball to scene
+scene.add(ball);
+
 // create renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -71,12 +79,23 @@ let maxSpeed = 5;
 let acceleration = null;
 let acceleration2 = null;
 
+// init pause variable
+let pause = true;
+
+// init direction variables and constants
+const LEFT = 0;
+const RIGHT = 1;
+let dir = LEFT;
+
 // track when keys are pressed
 window.addEventListener("keydown", onKeyDown);
 
 function onKeyDown(event) {
     let keyCode = event.keyCode;
     switch(keyCode) {
+        case 32: // space key
+            pause = !pause;
+            break;
         case 37: // left arrow key
             acceleration2 = false;
             break;
@@ -137,6 +156,12 @@ function onKeyUp(event) {
     }
 }
 
+// reset ball function
+function resetBall() {
+    pause = true;
+    ball.position.set(0, 0, 0);
+}
+
 function animate() {
     // change velocity
     if (acceleration == false) {
@@ -184,6 +209,25 @@ function animate() {
                 paddle2.position.y -= moveAmount2; // subtract moveAmount2 from Y value
             }
         }
+    }
+
+    // move ball
+    if (!pause) { // if game not paused
+        if (dir == LEFT) {
+            ball.position.x -= 1;
+        }
+        else if (dir == RIGHT) {
+            ball.position.x += 1;
+        }
+    }
+
+    if (ball.position.x >= window.innerWidth/2 + ball.geometry.parameters.radius) {
+        resetBall();
+        dir = RIGHT;
+    }
+    if (ball.position.x <= -window.innerWidth/2 - ball.geometry.parameters.radius) {
+        resetBall();
+        dir = LEFT;
     }
 
     renderer.render( scene, camera );
