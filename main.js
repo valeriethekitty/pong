@@ -73,7 +73,7 @@ let key2 = null; // key for player 2
 // init movement variables
 let moveAmount = 1;
 let moveAmount2 = 1;
-let maxSpeed = 5;
+let maxSpeed = 15;
 
 // init acceleration variables
 let acceleration = null;
@@ -243,10 +243,22 @@ function animate() {
         }
         // update Y position
         if (dirY == DOWN) {
-            ball.position.y -= ballVelocityY;
+            // check for ball collision with wall
+            if (ball.position.y - ball.geometry.parameters.radius - ballVelocityY >= -window.innerHeight/2) {
+                ball.position.y -= ballVelocityY;
+            }
+            else {
+                dirY = UP;
+            }
         }
         else if (dirY == UP) {
-            ball.position.y += ballVelocityY;
+            // check for ball collision with wall
+            if (ball.position.y + ball.geometry.parameters.radius + ballVelocityY <= window.innerHeight/2) {
+                ball.position.y += ballVelocityY;
+            }
+            else {
+                dirY = DOWN;
+            }
         }
     }
 
@@ -257,8 +269,9 @@ function animate() {
 
     // check for ball collision with paddle
     if (dirX == LEFT) {
-        if (checkCollision(ball, paddle)) { // if collide, change dirX
+        if (checkCollision(ball, paddle)) { // if collide, change dirX and angle
             dirX = RIGHT;
+
             let offset = (ball.position.y + ball.geometry.parameters.radius*2 - paddle.position.y)/(paddle.geometry.parameters.height + ball.geometry.parameters.radius*2);
             let phi = 0.25 * Math.PI * (2 * offset - 1);
 
@@ -266,7 +279,7 @@ function animate() {
         }
     }
     else if (dirX == RIGHT) {
-        if (checkCollision(ball, paddle2)) { // if collide, change dirX
+        if (checkCollision(ball, paddle2)) { // if collide, change dirX and angle
             dirX = LEFT;
 
             let offset = (ball.position.y + ball.geometry.parameters.radius*2 - paddle2.position.y)/(paddle2.geometry.parameters.height + ball.geometry.parameters.radius*2);
