@@ -85,7 +85,14 @@ let pause = true;
 // init direction variables and constants
 const LEFT = 0;
 const RIGHT = 1;
-let dir = LEFT;
+const UP = 2;
+const DOWN = 3;
+let dirX = LEFT;
+let dirY = UP;
+
+// init ball velocity variables
+let ballVelocityX = 10;
+let ballVelocityY = 0;
 
 // track when keys are pressed
 window.addEventListener("keydown", onKeyDown);
@@ -100,13 +107,13 @@ function onKeyDown(event) {
             acceleration2 = false;
             break;
         case 38: // up arrow key
-            key2 = "UP";
+            key2 = UP;
             break;
         case 39: // right arrow key
             acceleration2 = true;
             break;
         case 40: // down arrow key
-            key2 = "DOWN";
+            key2 = DOWN;
             break;
         case 65: // A key
             acceleration = false;
@@ -115,10 +122,10 @@ function onKeyDown(event) {
             acceleration = true;
             break;
         case 83: // S key
-            key1 = "DOWN";
+            key1 = DOWN;
             break;
         case 87: // W key
-            key1 = "UP";
+            key1 = UP;
             break;
     }
 }
@@ -160,6 +167,8 @@ function onKeyUp(event) {
 function resetBall() {
     pause = true;
     ball.position.set(0, 0, 0);
+    ballVelocityX = 10;
+    ballVelocityY = 0;
 }
 
 // check collision
@@ -199,24 +208,24 @@ function animate() {
 
     // change position
     if (key1 != null) {
-        if (key1 == "UP") {
+        if (key1 == UP) {
             if (paddle.position.y + paddle.geometry.parameters.height/2 + moveAmount <= window.innerHeight/2) { // check if out of bounds
                 paddle.position.y += moveAmount; // add moveAmount to Y value
             }
         }
-        else if (key1 == "DOWN") {
+        else if (key1 == DOWN) {
             if (paddle.position.y - paddle.geometry.parameters.height/2 - moveAmount >= -window.innerHeight/2) { // check if out of bounds
                 paddle.position.y -= moveAmount; // subtract moveAmount from Y value
             }
         }
     }
     if (key2 != null) {
-        if (key2 == "UP") {
+        if (key2 == UP) {
             if (paddle2.position.y + paddle2.geometry.parameters.height/2 + moveAmount <= window.innerHeight/2) { // check if out of bounds
                 paddle2.position.y += moveAmount2; // add moveAmount2 to Y value
             }
         }
-        else if (key2 == "DOWN") {
+        else if (key2 == DOWN) {
             if (paddle2.position.y - paddle2.geometry.parameters.height/2 - moveAmount >= -window.innerHeight/2) { // check if out of bounds
                 paddle2.position.y -= moveAmount2; // subtract moveAmount2 from Y value
             }
@@ -225,11 +234,19 @@ function animate() {
 
     // move ball
     if (!pause) { // if game not paused
-        if (dir == LEFT) {
-            ball.position.x -= 10;
+        // update X position
+        if (dirX == LEFT) {
+            ball.position.x -= ballVelocityX;
         }
-        else if (dir == RIGHT) {
-            ball.position.x += 10;
+        else if (dirX == RIGHT) {
+            ball.position.x += ballVelocityX;
+        }
+        // update Y position
+        if (dirY == DOWN) {
+            ball.position.y -= ballVelocityY;
+        }
+        else if (dirY == UP) {
+            ball.position.y += ballVelocityY;
         }
     }
 
@@ -239,14 +256,23 @@ function animate() {
     }
 
     // check for ball collision with paddle
-    if (dir == LEFT) {
-        if (checkCollision(ball, paddle)) { // if collide, change dir
-            dir = RIGHT;
+    if (dirX == LEFT) {
+        if (checkCollision(ball, paddle)) { // if collide, change dirX
+            dirX = RIGHT;
+            let offset = (ball.position.y + ball.geometry.parameters.radius*2 - paddle.position.y)/(paddle.geometry.parameters.height + ball.geometry.parameters.radius*2);
+            let phi = 0.25 * Math.PI * (2 * offset - 1);
+
+            ballVelocityY = Math.sqrt(ballVelocityX**2 + ballVelocityY**2) + Math.sin(phi);
         }
     }
-    else if (dir == RIGHT) {
-        if (checkCollision(ball, paddle2)) { // if collide, change dir
-            dir = LEFT;
+    else if (dirX == RIGHT) {
+        if (checkCollision(ball, paddle2)) { // if collide, change dirX
+            dirX = LEFT;
+
+            let offset = (ball.position.y + ball.geometry.parameters.radius*2 - paddle2.position.y)/(paddle2.geometry.parameters.height + ball.geometry.parameters.radius*2);
+            let phi = 0.25 * Math.PI * (2 * offset - 1);
+
+            ballVelocityY = Math.sqrt(ballVelocityX**2 + ballVelocityY**2) + Math.sin(phi);
         }
     }
 
