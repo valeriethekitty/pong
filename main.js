@@ -97,7 +97,7 @@ let ballVelocityY = 0;
 // init score variables
 let score = 0;
 let score2 = 0;
-let maxScore = 2;
+let maxScore = 14;
 
 // track when keys are pressed
 window.addEventListener("keydown", onKeyDown);
