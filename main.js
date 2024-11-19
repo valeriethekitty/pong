@@ -94,6 +94,11 @@ let dirY = UP;
 let ballVelocityX = 10;
 let ballVelocityY = 0;
 
+// init score variables
+let score = 0;
+let score2 = 0;
+let maxScore = 2;
+
 // track when keys are pressed
 window.addEventListener("keydown", onKeyDown);
 
@@ -127,7 +132,22 @@ function onKeyDown(event) {
         case 87: // W key
             key1 = UP;
             break;
+        case 82: // R key
+            resetGame();
+            break;
     }
+}
+
+// reset game
+function resetGame() {
+    resetBall();
+    moveAmount = 1;
+    moveAmount2 = 1;
+    dirX = LEFT;
+    dirY = UP;
+    score = 0;
+    score2 = 0;
+    document.getElementById("gameover").classList.remove("show");
 }
 
 // track when keys are de-pressed
@@ -172,7 +192,6 @@ function resetBall() {
 }
 
 // check collision
-
 function checkCollision( object, object2 ) {
     object.updateMatrixWorld();
     object2.updateMatrixWorld();
@@ -184,6 +203,10 @@ function checkCollision( object, object2 ) {
 }
 
 function animate() {
+    // set score tracker
+    document.getElementById("score").innerText = `${score}`;
+    document.getElementById("score2").innerText = `${score2}`;
+
     // change velocity
     if (acceleration == false) {
         if (moveAmount > 1) {
@@ -264,7 +287,31 @@ function animate() {
 
     // check for goal scoring 
     if (ball.position.x >= window.innerWidth/2 + ball.geometry.parameters.radius || ball.position.x <= -window.innerWidth/2 - ball.geometry.parameters.radius) {
+        // increase respective score
+        if (dirX == LEFT) {
+            score2++;
+        }
+        else if (dirX == RIGHT) {
+            score++;
+        }
         resetBall();
+    }
+
+    // check for game over
+    if (score >= maxScore || score2 >= maxScore) {
+        document.getElementById("gameover").classList.add("show");
+        let winner = "Player ";
+        if (score > score2) {
+            winner += "1";
+        }
+        else if (score2 > score) {
+            winner += "2";
+        }
+        else {
+            // should not happen but just in case
+            winner += "Tied";
+        }
+        document.getElementById("gameover").innerText = `Player 1 Score: ${score} \n Player 2 Score: ${score2} \n The winner is: \n ${winner}`;
     }
 
     // check for ball collision with paddle
@@ -291,3 +338,5 @@ function animate() {
 
     renderer.render( scene, camera );
 }
+
+export { resetGame }
